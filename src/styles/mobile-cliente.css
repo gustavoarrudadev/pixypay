@@ -1,0 +1,101 @@
+/* Estilos Mobile-First para Cliente */
+
+/* Ajustes gerais de tipografia para mobile */
+@media (max-width: 640px) {
+  /* Headers menores em mobile */
+  h1 {
+    @apply text-2xl;
+  }
+  
+  h2 {
+    @apply text-xl;
+  }
+  
+  h3 {
+    @apply text-lg;
+  }
+  
+  /* Textos base um pouco menores */
+  body {
+    @apply text-sm;
+  }
+  
+  /* Cards com padding reduzido */
+  .card-mobile {
+    @apply p-4;
+  }
+  
+  /* Botões maiores para facilitar toque */
+  button, .btn-mobile {
+    @apply min-h-[44px] px-4;
+  }
+  
+  /* Inputs maiores */
+  input, textarea, select {
+    @apply min-h-[44px] text-base;
+  }
+  
+  /* Espaçamentos reduzidos */
+  .space-y-mobile > * + * {
+    @apply mt-3;
+  }
+  
+  .gap-mobile {
+    @apply gap-3;
+  }
+}
+
+/* Melhorias específicas para páginas do cliente */
+@media (max-width: 640px) {
+  /* Dashboard */
+  .dashboard-mobile h1 {
+    @apply text-2xl;
+  }
+  
+  .dashboard-mobile .card-title {
+    @apply text-base;
+  }
+  
+  /* Carrinho */
+  .carrinho-mobile .item-card {
+    @apply flex-col;
+  }
+  
+  .carrinho-mobile .item-image {
+    @apply w-full h-48;
+  }
+  
+  /* Checkout */
+  .checkout-mobile .form-section {
+    @apply space-y-4;
+  }
+  
+  .checkout-mobile .input-group {
+    @apply flex-col gap-2;
+  }
+  
+  /* Loja Pública */
+  .loja-mobile .produto-card {
+    @apply w-full;
+  }
+  
+  .loja-mobile .produto-image {
+    @apply h-48;
+  }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 375px) {
+  h1 {
+    @apply text-xl;
+  }
+  
+  h2 {
+    @apply text-lg;
+  }
+  
+  h3 {
+    @apply text-base;
+  }
+}
+
