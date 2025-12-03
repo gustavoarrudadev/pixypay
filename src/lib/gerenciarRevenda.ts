@@ -5,6 +5,11 @@ import { enviarMagicLink, recuperarSenha } from './auth'
 export interface RevendaCompleta {
   id: string
   nome_revenda: string
+  nome_publico?: string | null
+  logo_url?: string | null
+  descricao_loja?: string | null
+  link_publico?: string | null
+  ativo?: boolean
   cnpj: string
   nome_responsavel: string
   cpf_responsavel: string

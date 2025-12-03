@@ -55,8 +55,8 @@ export async function listarCarrinho(): Promise<{ itens: ItemCarrinho[]; error: 
     // Se não está em modo impersonation, usa a sessão atual
     let clienteId = clienteUserId
     if (!clienteId) {
-      const { data: session } = await supabase.auth.getSession()
-      clienteId = session?.data?.session?.user?.id || null
+      const { data: { session } } = await supabase.auth.getSession()
+      clienteId = session?.user?.id || null
     }
     
     const sessaoId = clienteId ? null : obterSessaoId()
@@ -113,8 +113,8 @@ export async function adicionarAoCarrinho(
   dados: DadosItemCarrinho
 ): Promise<{ item: ItemCarrinho | null; error: Error | null; mensagem?: string }> {
   try {
-    const { data: session } = await supabase.auth.getSession()
-    const clienteId = session?.data?.session?.user?.id || null
+    const { data: { session } } = await supabase.auth.getSession()
+    const clienteId = session?.user?.id || null
     const sessaoId = clienteId ? null : obterSessaoId()
 
     // Verifica se o produto já está no carrinho
@@ -283,8 +283,8 @@ export async function removerDoCarrinho(
  */
 export async function limparCarrinho(): Promise<{ error: Error | null; mensagem?: string }> {
   try {
-    const { data: session } = await supabase.auth.getSession()
-    const clienteId = session?.data?.session?.user?.id || null
+    const { data: { session } } = await supabase.auth.getSession()
+    const clienteId = session?.user?.id || null
     const sessaoId = clienteId ? null : obterSessaoId()
 
     let query = supabase.from('carrinho').delete()

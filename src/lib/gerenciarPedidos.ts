@@ -4,6 +4,9 @@ import { criarTransacaoFinanceira } from './financeiro'
 import { buscarConfiguracaoRepasseAtiva } from './configuracoesRepasse'
 import type { Parcela } from './gerenciarParcelamentos'
 
+// Re-exportar Parcela para uso em outros arquivos
+export type { Parcela }
+
 export type StatusPedido = 'pendente' | 'confirmado' | 'preparando' | 'pronto' | 'em_transito' | 'entregue' | 'cancelado'
 export type FormaPagamento = 'pix_vista' | 'pix_parcelado'
 export type TipoEntrega = 'retirar_local' | 'receber_endereco' | 'agendar'
