@@ -86,8 +86,8 @@ export default function Dashboard() {
   const [mostrarFiltroUnidade, setMostrarFiltroUnidade] = useState(true)
   const [buscando, setBuscando] = useState(false)
   const [resultadosBusca, setResultadosBusca] = useState<Array<{
-    tipo: 'cliente' | 'pedido' | 'parcelamento'
-    id: string
+    tipo: 'cliente' | 'pedido' | 'parcelamento' | 'funcionalidade'
+    id?: string
     titulo: string
     subtitulo?: string
     rota: string
@@ -490,7 +490,6 @@ export default function Dashboard() {
         const pedidosTodos = pedidosResult.pedidos || []
         
         // Aplicar filtro de período
-        const agora = new Date()
         let dataInicioFiltro = new Date()
         let dataFimFiltro = new Date()
         
@@ -513,14 +512,6 @@ export default function Dashboard() {
           const dataPedido = new Date(p.criado_em)
           if (isNaN(dataPedido.getTime())) return false
           return dataPedido >= dataInicioFiltro && dataPedido <= dataFimFiltro
-        })
-
-        const transacoesFiltradas = (transacoesResult.transacoes || []).filter(t => {
-          const dataStr = t.data_pagamento || t.criado_em
-          if (!dataStr) return false
-          const dataTransacao = new Date(dataStr)
-          if (isNaN(dataTransacao.getTime())) return false
-          return dataTransacao >= dataInicioFiltro && dataTransacao <= dataFimFiltro
         })
 
         setTotalPedidos(pedidos.length)
@@ -564,12 +555,12 @@ export default function Dashboard() {
         setTotalClientes(clientes.length)
 
         // Calcular métricas anteriores de clientes
+        // Nota: listarClientesRevenda não retorna criado_em, então usamos ultimo_pedido como aproximação
         const clientesOntem = clientes.filter(c => {
-          const dataStr = c.criado_em || c.created_at
-          if (!dataStr) return false
-          const dataCriacao = new Date(dataStr)
-          if (isNaN(dataCriacao.getTime())) return false
-          return dataCriacao.toISOString().split('T')[0] === dataOntem
+          if (!c.ultimo_pedido) return false
+          const dataUltimoPedido = new Date(c.ultimo_pedido)
+          if (isNaN(dataUltimoPedido.getTime())) return false
+          return dataUltimoPedido.toISOString().split('T')[0] === dataOntem
         })
         setMetricasAnteriores(prev => ({
           ...prev,
@@ -724,60 +715,6 @@ export default function Dashboard() {
     }
   }
 
-  const handleCriarAgendamento = async (dados: DadosAgendamento) => {
-    if (!revendaId) return
-    
-    try {
-      const { error, mensagem } = await criarAgendamento(revendaId, dados)
-      if (error) {
-        setErro(mensagem || 'Erro ao criar agendamento')
-        throw error
-      }
-      setSucesso('Agendamento criado com sucesso!')
-      setTimeout(() => setSucesso(null), 3000)
-      await carregarAgendamentos(revendaId)
-      // Atualiza status após criar agendamento
-      await atualizarStatusPorAgendamentos(revendaId)
-    } catch (error) {
-      console.error('❌ Erro ao criar agendamento:', error)
-    }
-  }
-
-  const handleDeletarAgendamento = async (id: string) => {
-    if (!revendaId) return
-    
-    try {
-      const { error, mensagem } = await deletarAgendamento(id)
-      if (error) {
-        setErro(mensagem || 'Erro ao deletar agendamento')
-        throw error
-      }
-      setSucesso('Agendamento deletado com sucesso!')
-      setTimeout(() => setSucesso(null), 3000)
-      await carregarAgendamentos(revendaId)
-      // Atualiza status após deletar agendamento
-      await atualizarStatusPorAgendamentos(revendaId)
-    } catch (error) {
-      console.error('❌ Erro ao deletar agendamento:', error)
-    }
-  }
-
-  const handleToggleAgendamento = async (id: string, ativo: boolean) => {
-    if (!revendaId) return
-    
-    try {
-      const { error, mensagem } = await atualizarAgendamento(id, { ativo })
-      if (error) {
-        setErro(mensagem || 'Erro ao atualizar agendamento')
-        throw error
-      }
-      await carregarAgendamentos(revendaId)
-      // Atualiza status após atualizar agendamento
-      await atualizarStatusPorAgendamentos(revendaId)
-    } catch (error) {
-      console.error('❌ Erro ao atualizar agendamento:', error)
-    }
-  }
 
 
   if (carregando) {
@@ -927,20 +864,21 @@ export default function Dashboard() {
                 <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Unidade
                 </label>
-                <SelectMenu
-                  value={filtroUnidade}
-                  onChange={(value) => {
-                    setFiltroUnidade(value)
-                  }}
-                  disabled={carregandoUnidades}
-                  options={[
-                    { value: 'tudo', label: 'Tudo' },
-                    ...unidades.map(unidade => ({
-                      value: unidade.id,
-                      label: unidade.nome
-                    }))
-                  ]}
-                />
+                <div className={carregandoUnidades ? 'opacity-50 pointer-events-none' : ''}>
+                  <SelectMenu
+                    value={filtroUnidade}
+                    onChange={(value) => {
+                      setFiltroUnidade(value)
+                    }}
+                    options={[
+                      { value: 'tudo', label: 'Tudo' },
+                      ...unidades.map(unidade => ({
+                        value: unidade.id,
+                        label: unidade.nome
+                      }))
+                    ]}
+                  />
+                </div>
               </div>
             )}
 
