@@ -22,9 +22,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["vite/client"]
   },
-  "include": ["src"],
+  "include": ["src", "src/env.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
 
