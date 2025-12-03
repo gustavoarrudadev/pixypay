@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, Filter, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { SelectMenu } from '@/components/ui/select-menu'
@@ -128,8 +128,8 @@ export function FiltrosAvancados({
               onChange={dataFiltro.onChange}
               dataInicio={dataFiltro.dataInicio}
               dataFim={dataFiltro.dataFim}
-              onDataInicioChange={dataFiltro.onDataInicioChange}
-              onDataFimChange={dataFiltro.onDataFimChange}
+              onDataInicioChange={dataFiltro.onDataInicioChange || (() => {})}
+              onDataFimChange={dataFiltro.onDataFimChange || (() => {})}
               open={dropdownCalendarioAberto}
               onOpenChange={setDropdownCalendarioAberto}
             />
