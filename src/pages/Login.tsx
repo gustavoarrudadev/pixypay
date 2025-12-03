@@ -148,7 +148,7 @@ export default function Login() {
             <Logo variant="full" width={180} height={60} />
           </div>
           <p className="text-neutral-600 dark:text-neutral-400">
-            Entre na sua conta para continuar
+            Entre na sua conta para continuar:
           </p>
         </div>
 
