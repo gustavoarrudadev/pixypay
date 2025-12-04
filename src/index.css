@@ -68,6 +68,37 @@
     font-family: var(--font-geist-sans), system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  
+  /* Previne zoom automático no mobile ao focar inputs */
+  /* iOS Safari faz zoom automático se font-size < 16px */
+  @media (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="search"],
+    input[type="url"],
+    textarea,
+    select {
+      font-size: 16px !important; /* 16px previne zoom automático no iOS */
+      -webkit-appearance: none; /* Remove estilo padrão iOS */
+    }
+  }
+  
+  /* Scroll suave para campos quando focados no mobile */
+  @media (max-width: 768px) {
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* Garante que o campo fique visível quando focado */
+    input:focus,
+    textarea:focus,
+    select:focus {
+      scroll-margin-top: 20px;
+    }
+  }
 }
 
 /* Custom Scrollbar - Violeta com fundo transparente */

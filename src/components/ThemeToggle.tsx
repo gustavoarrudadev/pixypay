@@ -18,13 +18,16 @@ export function ThemeToggle({ className, useAbsolutePosition = true }: ThemeTogg
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      className={cn(className || defaultClassName)}
+      className={cn(
+        className || defaultClassName,
+        "h-10 w-10 sm:h-9 sm:w-9" // Maior no mobile
+      )}
       aria-label="Alternar tema"
     >
       {theme === 'light' ? (
-        <Moon className="h-5 w-5" />
+        <Moon className="h-6 w-6 sm:h-5 sm:w-5" />
       ) : (
-        <Sun className="h-5 w-5" />
+        <Sun className="h-6 w-6 sm:h-5 sm:w-5" />
       )}
     </Button>
   )

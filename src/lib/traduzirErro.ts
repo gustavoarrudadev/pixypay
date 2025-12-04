@@ -48,6 +48,9 @@ export function traduzirErro(erro: Error | string | null | { message?: string })
     'user banned': 'Sua conta está SUSPENSA, entre em contato com o suporte.',
     'account suspended': 'Sua conta está SUSPENSA, entre em contato com o suporte.',
     'account has been suspended': 'Sua conta está SUSPENSA, entre em contato com o suporte.',
+    'foreign key': 'Não é possível excluir este item porque ele possui registros relacionados.',
+    'itens_pedido': 'Não é possível excluir este produto porque ele possui pedidos associados.',
+    'key is still referenced': 'Este item não pode ser excluído porque possui registros relacionados.',
   }
 
   // Procura por correspondências parciais

@@ -8,7 +8,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UploadImagem } from './UploadImagem'
 import { SelecionarUnidade } from './SelecionarUnidade'
+import { SelecionarTipoProduto } from './SelecionarTipoProduto'
+import { FormBotijao } from './FormBotijao'
+import { FormGalaoAgua } from './FormGalaoAgua'
+import { FormEquipamento } from './FormEquipamento'
 import type { Produto, DadosProduto } from '@/lib/gerenciarProduto'
+import type { TipoProduto } from '@/lib/produtosPadrao'
 
 const schemaProduto = z.object({
   nome: z.string().min(1, 'Nome é obrigatório').max(255, 'Nome muito longo'),
@@ -39,6 +44,15 @@ export function FormProduto({
   onCancelar,
   salvando = false,
 }: FormProdutoProps) {
+  // Estados para fluxo em etapas (apenas para criação)
+  const [tipoProdutoSelecionado, setTipoProdutoSelecionado] = useState<TipoProduto | null>(
+    produto ? null : null // Se for edição, não mostra seleção de tipo
+  )
+  const [produtoPreConfigurado, setProdutoPreConfigurado] = useState<{
+    nome: string
+    imagemUrl: string
+  } | null>(null)
+
   const [imagemUrl, setImagemUrl] = useState<string | null>(produto?.imagem_url || null)
   const [unidadeId, setUnidadeId] = useState<string | null>(produto?.unidade_id || unidadeIdPadrao || null)
 
@@ -65,6 +79,25 @@ export function FormProduto({
     setValue('imagem_url', imagemUrl)
   }, [imagemUrl, setValue])
 
+  // Quando produto pré-configurado é selecionado, atualiza os campos
+  useEffect(() => {
+    if (produtoPreConfigurado) {
+      setValue('nome', produtoPreConfigurado.nome)
+      setImagemUrl(produtoPreConfigurado.imagemUrl)
+      setValue('imagem_url', produtoPreConfigurado.imagemUrl)
+    }
+  }, [produtoPreConfigurado, setValue])
+
+  // Quando tipo personalizado é selecionado, marca como pré-configurado vazio
+  useEffect(() => {
+    if (tipoProdutoSelecionado === 'personalizado' && !produtoPreConfigurado) {
+      setProdutoPreConfigurado({
+        nome: '',
+        imagemUrl: '',
+      })
+    }
+  }, [tipoProdutoSelecionado, produtoPreConfigurado])
+
   const onSubmit = async (data: FormData) => {
     await onSalvar({
       nome: data.nome,
@@ -76,22 +109,122 @@ export function FormProduto({
     })
   }
 
+  // Se for criação e ainda não selecionou tipo, mostra seleção de tipo
+  if (!produto && !tipoProdutoSelecionado) {
+    return (
+      <div className="space-y-6">
+        <SelecionarTipoProduto
+          onSelecionarTipo={(tipo) => {
+            setTipoProdutoSelecionado(tipo)
+          }}
+        />
+        <div className="flex gap-2 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancelar}
+            className="flex-1 border-neutral-300 dark:border-neutral-700"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Cancelar
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Se selecionou tipo mas ainda não configurou o produto específico
+  if (!produto && tipoProdutoSelecionado && !produtoPreConfigurado) {
+    if (tipoProdutoSelecionado === 'botijoes') {
+      return (
+        <FormBotijao
+          onVoltar={() => setTipoProdutoSelecionado(null)}
+          onSelecionar={(config) => {
+            setProdutoPreConfigurado({
+              nome: config.nome,
+              imagemUrl: config.imagemUrl,
+            })
+          }}
+        />
+      )
+    }
+
+    if (tipoProdutoSelecionado === 'galaodeagua') {
+      return (
+        <FormGalaoAgua
+          onVoltar={() => setTipoProdutoSelecionado(null)}
+          onSelecionar={(config) => {
+            setProdutoPreConfigurado({
+              nome: config.nome,
+              imagemUrl: config.imagemUrl,
+            })
+          }}
+        />
+      )
+    }
+
+    if (tipoProdutoSelecionado === 'equipamentos') {
+      return (
+        <FormEquipamento
+          onVoltar={() => setTipoProdutoSelecionado(null)}
+          onSelecionar={(config) => {
+            setProdutoPreConfigurado({
+              nome: config.nome,
+              imagemUrl: config.imagemUrl,
+            })
+          }}
+        />
+      )
+    }
+
+    // Personalizado - vai direto para o formulário completo (não precisa pré-configuração)
+    // O useEffect acima já marca como pré-configurado vazio, então só precisa aguardar
+    if (tipoProdutoSelecionado === 'personalizado' && !produtoPreConfigurado) {
+      return null // Aguarda o useEffect atualizar o estado
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Upload de Imagem */}
-      <UploadImagem
-        revendaId={revendaId}
-        produtoId={produtoId}
-        tipo="produto"
-        valorInicial={imagemUrl}
-        onUploadComplete={(url) => {
-          setImagemUrl(url || null)
-          setValue('imagem_url', url || null)
-        }}
-        onError={(mensagem) => {
-          console.error('Erro no upload:', mensagem)
-        }}
-      />
+      {/* Upload de Imagem - apenas para personalizado ou edição */}
+      {(tipoProdutoSelecionado === 'personalizado' || produto) && (
+        <UploadImagem
+          revendaId={revendaId}
+          produtoId={produtoId}
+          tipo="produto"
+          valorInicial={imagemUrl}
+          onUploadComplete={(url) => {
+            setImagemUrl(url || null)
+            setValue('imagem_url', url || null)
+          }}
+          onError={(mensagem) => {
+            console.error('Erro no upload:', mensagem)
+          }}
+        />
+      )}
+
+      {/* Preview da imagem para produtos pré-configurados */}
+      {!produto && produtoPreConfigurado && produtoPreConfigurado.imagemUrl && tipoProdutoSelecionado !== 'personalizado' && (
+        <div className="space-y-2">
+          <Label className="text-neutral-700 dark:text-neutral-300">
+            Imagem do Produto
+          </Label>
+          <div className="w-full h-48 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center">
+            <img
+              src={produtoPreConfigurado.imagemUrl}
+              alt={produtoPreConfigurado.nome}
+              className="max-w-full max-h-full object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+              }}
+            />
+          </div>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            Imagem pré-configurada do produto
+          </p>
+        </div>
+      )}
 
       {/* Nome */}
       <div className="space-y-2">
@@ -102,11 +235,16 @@ export function FormProduto({
           id="nome"
           {...register('nome')}
           placeholder="Ex: Produto Exemplo"
-          disabled={salvando}
+          disabled={salvando || (!produto && produtoPreConfigurado && tipoProdutoSelecionado !== 'personalizado')}
           className={errors.nome ? 'border-red-300 dark:border-red-700' : ''}
         />
         {errors.nome && (
           <p className="text-sm text-red-600 dark:text-red-400">{errors.nome.message}</p>
+        )}
+        {!produto && produtoPreConfigurado && tipoProdutoSelecionado !== 'personalizado' && (
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            Nome pré-configurado do produto padrão
+          </p>
         )}
       </div>
 

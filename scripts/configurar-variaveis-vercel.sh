@@ -39,3 +39,7 @@ echo ""
 echo "Próximo passo: Fazer deploy"
 echo "  npx vercel --prod"
 
+
+
+
+
