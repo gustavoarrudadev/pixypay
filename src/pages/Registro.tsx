@@ -11,8 +11,11 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { registrarUsuario, obterSessao } from '@/lib/auth'
 import { obterRoleDeUsuario } from '@/lib/roles'
 import { aplicarMascaraTelefone, removerMascaraTelefone, aplicarMascaraCPF, removerMascaraCPF } from '@/lib/mascaras'
+import { useMobileInputScroll } from '@/hooks/useMobileInputScroll'
 
 export default function Registro() {
+  // Hook para melhorar experiência mobile
+  useMobileInputScroll()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const codigoIndicacao = searchParams.get('ref') || undefined

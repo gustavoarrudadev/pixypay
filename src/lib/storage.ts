@@ -225,7 +225,21 @@ export async function uploadLogoRevenda(
  * @param url URL completa da imagem
  * @returns Sucesso ou erro
  */
+/**
+ * Verifica se uma URL é de uma imagem da pasta public (não do Storage)
+ */
+export function ehImagemPublica(url: string): boolean {
+  if (!url) return false
+  // URLs da pasta public começam com /produtos/ ou são relativas
+  return url.startsWith('/produtos/') || url.startsWith('./produtos/') || !url.includes('supabase.co')
+}
+
 export async function deletarImagem(url: string): Promise<{ error: Error | null; mensagem?: string }> {
+  // Se for imagem da pasta public, não tenta deletar do storage
+  if (ehImagemPublica(url)) {
+    console.log('ℹ️ Imagem da pasta public, não será deletada do storage:', url)
+    return { error: null }
+  }
   try {
     // Extrai o caminho da URL
     // Exemplo: https://xxx.supabase.co/storage/v1/object/public/produtos/revenda_id/produto_id/imagem.jpg
@@ -269,6 +283,12 @@ export async function deletarImagem(url: string): Promise<{ error: Error | null;
 
     return { error: null }
   } catch (error) {
+    // Se não conseguir fazer parse da URL, pode ser imagem da pasta public
+    if (ehImagemPublica(url)) {
+      console.log('ℹ️ Imagem da pasta public (erro no parse), não será deletada:', url)
+      return { error: null }
+    }
+    
     console.error('❌ Erro inesperado ao deletar imagem:', error)
     return {
       error: error instanceof Error ? error : new Error('Erro ao deletar imagem'),

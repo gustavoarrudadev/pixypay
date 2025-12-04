@@ -12,8 +12,11 @@ import { fazerLogin, enviarMagicLink, obterSessao } from '@/lib/auth'
 import { obterRoleDeUsuario } from '@/lib/roles'
 import { supabase } from '@/lib/supabase'
 import { sincronizarTelefone } from '@/lib/sincronizarTelefone'
+import { useMobileInputScroll } from '@/hooks/useMobileInputScroll'
 
 export default function Login() {
+  // Hook para melhorar experiência mobile
+  useMobileInputScroll()
   const navigate = useNavigate()
   const location = useLocation()
   

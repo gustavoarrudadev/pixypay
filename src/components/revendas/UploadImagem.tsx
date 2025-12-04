@@ -100,8 +100,8 @@ export function UploadImagem({
   }
 
   const handleRemove = async () => {
-    // Se havia uma imagem, deleta do storage antes de remover
-    if (valorInicial && valorInicial.trim().length > 0) {
+    // Se havia uma imagem do storage (não da pasta public), deleta antes de remover
+    if (valorInicial && valorInicial.trim().length > 0 && !valorInicial.startsWith('/produtos/')) {
       try {
         await deletarImagem(valorInicial)
         console.log('✅ Imagem removida do storage')

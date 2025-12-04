@@ -1,6 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
-import { Dropdown } from './dropdown'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './dropdown-menu'
 
 interface Option {
   value: string
@@ -18,7 +23,6 @@ interface SelectMenuProps {
 }
 
 export function SelectMenu({ value, options, onChange, placeholder = 'Selecionar…', className, label, disabled = false }: SelectMenuProps) {
-  const [aberto, setAberto] = useState(false)
   const atual = useMemo(() => options.find(o => o.value === value)?.label || '', [options, value])
 
   return (
@@ -26,12 +30,8 @@ export function SelectMenu({ value, options, onChange, placeholder = 'Selecionar
       {label && (
         <span className="block mb-1 text-sm text-neutral-700 dark:text-neutral-300">{label}</span>
       )}
-      <Dropdown
-        aberto={aberto}
-        onToggle={setAberto}
-        usarPortal
-        alinhamento="inicio"
-        trigger={
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <button
             type="button"
             disabled={disabled}
@@ -40,24 +40,17 @@ export function SelectMenu({ value, options, onChange, placeholder = 'Selecionar
             <span className="truncate">{atual || placeholder}</span>
             <ChevronDown className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
           </button>
-        }
-      >
-        <div className="py-1">
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
           {options.map(opt => {
             const ativo = opt.value === value
             return (
-              <button
+              <DropdownMenuItem
                 key={opt.value}
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
+                onClick={() => {
                   onChange(opt.value)
-                  setTimeout(() => {
-                    setAberto(false)
-                  }, 0)
                 }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${ativo ? 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300' : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
+                className={`flex items-center gap-2 ${ativo ? 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300' : ''}`}
               >
                 {ativo ? (
                   <Check className="w-4 h-4 text-violet-600 dark:text-violet-400" />
@@ -65,11 +58,11 @@ export function SelectMenu({ value, options, onChange, placeholder = 'Selecionar
                   <span className="w-4 h-4" />
                 )}
                 <span className="truncate">{opt.label}</span>
-              </button>
+              </DropdownMenuItem>
             )
           })}
-        </div>
-      </Dropdown>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

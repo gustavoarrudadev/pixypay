@@ -329,6 +329,46 @@ export async function atualizarProduto(
  */
 export async function deletarProduto(produtoId: string): Promise<{ error: Error | null; mensagem?: string }> {
   try {
+    // Verifica se o produto tem itens de pedido associados
+    const { data: itensPedido, error: erroItens } = await supabase
+      .from('itens_pedido')
+      .select('id')
+      .eq('produto_id', produtoId)
+      .limit(1)
+
+    if (erroItens) {
+      console.error('❌ Erro ao verificar itens de pedido:', erroItens)
+      // Continua tentando deletar mesmo se houver erro na verificação
+    }
+
+    // Se o produto tem itens de pedido, não pode ser deletado
+    if (itensPedido && itensPedido.length > 0) {
+      const mensagemErro = 'Não é possível excluir este produto porque ele possui pedidos associados. Desative o produto ao invés de excluí-lo para mantê-lo oculto na loja pública.'
+      console.warn('⚠️ Tentativa de deletar produto com pedidos associados:', produtoId)
+      return {
+        error: new Error('PRODUTO_COM_PEDIDOS'),
+        mensagem: mensagemErro,
+      }
+    }
+
+    // Verifica se o produto tem itens no carrinho
+    const { data: itensCarrinho, error: erroCarrinho } = await supabase
+      .from('carrinho')
+      .select('id')
+      .eq('produto_id', produtoId)
+      .limit(1)
+
+    if (erroCarrinho) {
+      console.error('❌ Erro ao verificar carrinho:', erroCarrinho)
+      // Continua tentando deletar mesmo se houver erro na verificação
+    }
+
+    // Se o produto está em algum carrinho, avisa mas permite deletar
+    // (o carrinho será limpo automaticamente pelo ON DELETE CASCADE)
+    if (itensCarrinho && itensCarrinho.length > 0) {
+      console.log('ℹ️ Produto está em carrinho(s), será removido automaticamente')
+    }
+
     // Busca produto para deletar a imagem antes de deletar o produto
     const { data: produto, error: erroBusca } = await supabase
       .from('produtos')
@@ -364,6 +404,15 @@ export async function deletarProduto(produtoId: string): Promise<{ error: Error 
 
     if (error) {
       console.error('❌ Erro ao deletar produto:', error)
+      
+      // Tratamento específico para erro de foreign key constraint
+      if (error.code === '23503' || error.message?.includes('foreign key') || error.message?.includes('itens_pedido')) {
+        return {
+          error,
+          mensagem: 'Não é possível excluir este produto porque ele possui pedidos associados. Desative o produto ao invés de excluí-lo para mantê-lo oculto na loja pública.',
+        }
+      }
+      
       return {
         error,
         mensagem: traduzirErro(error.message) || 'Erro ao deletar produto.',

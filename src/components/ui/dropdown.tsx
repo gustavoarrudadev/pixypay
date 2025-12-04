@@ -79,8 +79,12 @@ export function Dropdown({ aberto, onToggle, trigger, children, alinhamento = 'i
     }
     
     // Marca quando um clique acontece dentro do dropdown
-    function handleClickInside() {
-      clickHandled = true
+    function handleClickInside(e: MouseEvent) {
+      // Verifica se o clique foi em um botão ou elemento clicável
+      const target = e.target as HTMLElement
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        clickHandled = true
+      }
     }
     
     calcPos()
@@ -88,11 +92,13 @@ export function Dropdown({ aberto, onToggle, trigger, children, alinhamento = 'i
     // Adiciona listener para cliques dentro do dropdown primeiro
     if (ref.current) {
       ref.current.addEventListener('mousedown', handleClickInside, true)
+      ref.current.addEventListener('click', handleClickInside, true)
     }
     
     // Adiciona listener para cliques fora após um pequeno delay
     const timeoutId = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside, true)
+      document.addEventListener('click', handleClickOutside, true)
     }, 10)
     
     window.addEventListener('scroll', calcPos, true)
@@ -102,8 +108,10 @@ export function Dropdown({ aberto, onToggle, trigger, children, alinhamento = 'i
       clearTimeout(timeoutId)
       if (ref.current) {
         ref.current.removeEventListener('mousedown', handleClickInside, true)
+        ref.current.removeEventListener('click', handleClickInside, true)
       }
       document.removeEventListener('mousedown', handleClickOutside, true)
+      document.removeEventListener('click', handleClickOutside, true)
       window.removeEventListener('scroll', calcPos, true)
       window.removeEventListener('resize', calcPos, true)
     }

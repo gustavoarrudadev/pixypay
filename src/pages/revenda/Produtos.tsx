@@ -278,9 +278,10 @@ export default function Produtos() {
     setErro(null)
 
     try {
-      const { error } = await deletarProduto(produtoParaExcluir)
+      const { error, mensagem } = await deletarProduto(produtoParaExcluir)
       if (error) {
-        setErro('Erro ao excluir produto.')
+        // Usa a mensagem específica retornada pela função, ou uma mensagem genérica
+        setErro(mensagem || 'Erro ao excluir produto.')
         return
       }
 
@@ -731,7 +732,7 @@ export default function Produtos() {
         aberto={confirmarExclusaoAberto}
         onOpenChange={setConfirmarExclusaoAberto}
         titulo="Excluir Produto"
-        descricao="Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita."
+        descricao="Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita. Produtos com pedidos associados não podem ser excluídos - você pode desativá-los ao invés de excluí-los."
         confirmando={excluindo}
         onConfirmar={confirmarExclusao}
         onCancelar={() => {
